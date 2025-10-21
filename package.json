@@ -10,15 +10,20 @@
   "build": {
     "appId": "com.ytdlp.gui",
     "productName": "Multi-Platform Video Downloader",
+    "icon": "assets/icon.png",
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "signAndEditExecutable": false
@@ -35,6 +40,7 @@
       "index.html",
       "styles.css",
       "renderer.js",
+      "assets/**/*",
       "node_modules/**/*"
     ],
     "extraResources": [
@@ -44,7 +50,15 @@
       }
     ]
   },
-  "keywords": ["video", "downloader", "youtube", "pinterest", "instagram", "tiktok", "yt-dlp"],
+  "keywords": [
+    "video",
+    "downloader",
+    "youtube",
+    "pinterest",
+    "instagram",
+    "tiktok",
+    "yt-dlp"
+  ],
   "author": "",
   "license": "ISC",
   "description": "多平台视频下载工具 - 支持 YouTube、Pinterest、Instagram、TikTok 等多个平台",
@@ -53,6 +67,7 @@
     "electron-builder": "^24.13.3"
   },
   "dependencies": {
+    "electron-updater": "^6.6.2",
     "iconv-lite": "^0.7.0"
   }
 }

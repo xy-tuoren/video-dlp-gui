@@ -16,7 +16,7 @@ function createWindow() {
             contextIsolation: false
         },
         resizable: true,
-        icon: path.join(__dirname, 'icon.png')
+        icon: path.join(__dirname, 'assets', 'icon.png')
     });
 
     mainWindow.loadFile('index.html');
