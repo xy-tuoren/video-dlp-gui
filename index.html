@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube 视频下载工具</title>
+    <title>多平台视频下载工具</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📹 YouTube 视频下载工具</h1>
-            <p class="subtitle">支持批量下载，多种清晰度选择</p>
+            <h1>📹 多平台视频下载工具</h1>
+            <p class="subtitle">支持 YouTube、Pinterest、Instagram、TikTok、bilibili 等多个平台批量下载</p>
         </header>
 
         <div class="main-content">
@@ -18,11 +18,11 @@
             <section class="card">
                 <h2>📝 视频链接</h2>
                 <div class="input-group">
-                    <label>输入 URL（每行一个）：</label>
+                    <label>输入 URL（每行一个，支持多个平台）：</label>
                     <textarea 
                         id="urlInput" 
-                        placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/watch?v=...&#10;&#10;或点击下方按钮选择 URL 文件"
-                        rows="6"
+                        placeholder="支持的平台示例：&#10;https://www.youtube.com/watch?v=...&#10;https://www.pinterest.com/pin/...&#10;https://www.instagram.com/p/...&#10;https://www.tiktok.com/@user/video/...&#10;https://twitter.com/user/status/...&#10;&#10;或点击下方按钮选择 URL 文件"
+                        rows="8"
                     ></textarea>
                 </div>
                 <div class="button-group">
@@ -55,12 +55,15 @@
                 <div class="setting-row">
                     <label for="quality">视频清晰度：</label>
                     <select id="quality" class="quality-select">
-                        <option value="best">最佳质量</option>
+                        <option value="best">最佳质量（推荐）</option>
                         <option value="4k">4K (2160p)</option>
                         <option value="1080p">1080p (全高清)</option>
                         <option value="720p">720p (高清)</option>
                         <option value="480p">480p (标清)</option>
                     </select>
+                    <small style="color: #666; display: block; margin-top: 4px;">
+                        适用于所有平台，如果视频不支持所选清晰度，将自动下载最接近的质量
+                    </small>
                 </div>
 
                 <div class="setting-row">
@@ -69,6 +72,28 @@
                         使用视频ID作为文件名
                     </label>
                 </div>
+            </section>
+
+            <!-- 平台特定设置 -->
+            <section class="card">
+                <h2>🔧 平台特定设置</h2>
+                
+                <details>
+                    <summary style="cursor: pointer; padding: 8px; background: #f5f5f5; border-radius: 4px; margin-bottom: 8px;">
+                        <strong>📌 Pinterest</strong>
+                    </summary>
+                    <div style="padding: 12px 20px;">
+                        <div style="margin-bottom: 8px;">
+                            <label>
+                                <input type="checkbox" id="pinterest-thumbnail">
+                                下载独立的封面图片文件
+                            </label>
+                            <div style="color: #666; font-size: 0.9em; margin-left: 24px; margin-top: 4px;">
+                                封面会自动嵌入视频，此选项控制是否额外保存 .jpg 文件
+                            </div>
+                        </div>
+                    </div>
+                </details>
             </section>
 
             <!-- 操作按钮 -->

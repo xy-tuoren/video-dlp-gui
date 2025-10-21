@@ -16,6 +16,9 @@ const progressText = document.getElementById('progressText');
 const progressBar = document.getElementById('progressBar');
 const logOutput = document.getElementById('logOutput');
 
+// 平台特定配置
+const pinterestThumbnail = document.getElementById('pinterest-thumbnail');
+
 // 设置默认下载路径
 // 从主进程获取正确的默认路径（打包后使用用户下载目录，开发时使用项目目录）
 (async () => {
@@ -31,29 +34,59 @@ selectFolderBtn.addEventListener('click', async () => {
     }
 });
 
-// 清理 YouTube URL，只保留视频 ID
-function cleanYouTubeUrl(url) {
+// 清理 URL，优化不同网站的 URL 格式
+function cleanUrl(url) {
     try {
-        // 匹配 YouTube 视频 ID
-        const patterns = [
-            /[?&]v=([^&]+)/,  // 标准格式: ?v=VIDEO_ID 或 &v=VIDEO_ID
-            /youtu\.be\/([^?&]+)/,  // 短链接格式: youtu.be/VIDEO_ID
-            /embed\/([^?&]+)/  // 嵌入格式: /embed/VIDEO_ID
-        ];
-        
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match && match[1]) {
-                const videoId = match[1];
-                return `https://www.youtube.com/watch?v=${videoId}`;
+        // YouTube URL 清理
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            const patterns = [
+                /[?&]v=([^&]+)/,  // 标准格式: ?v=VIDEO_ID 或 &v=VIDEO_ID
+                /youtu\.be\/([^?&]+)/,  // 短链接格式: youtu.be/VIDEO_ID
+                /embed\/([^?&]+)/  // 嵌入格式: /embed/VIDEO_ID
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    const videoId = match[1];
+                    return `https://www.youtube.com/watch?v=${videoId}`;
+                }
             }
         }
         
-        // 如果没有匹配到，返回原 URL
+        // Pinterest URL 清理 - 移除追踪参数
+        if (url.includes('pinterest.com') || url.includes('pin.it')) {
+            // 移除追踪参数，但保留 pin ID
+            return url.split('?')[0];
+        }
+        
+        // 其他网站直接返回原 URL
         return url;
     } catch (err) {
         return url;
     }
+}
+
+// 识别网站类型（前端版本）
+function detectWebsite(url) {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        return '🎬 YouTube';
+    } else if (url.includes('pinterest.com') || url.includes('pin.it')) {
+        return '📌 Pinterest';
+    } else if (url.includes('instagram.com')) {
+        return '📷 Instagram';
+    } else if (url.includes('twitter.com') || url.includes('x.com')) {
+        return '🐦 Twitter/X';
+    } else if (url.includes('tiktok.com')) {
+        return '🎵 TikTok';
+    } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+        return '📘 Facebook';
+    } else if (url.includes('vimeo.com')) {
+        return '🎥 Vimeo';
+    } else if (url.includes('bilibili.com')) {
+        return '📺 Bilibili';
+    }
+    return '🌐 通用';
 }
 
 // 选择URL文件
@@ -75,7 +108,7 @@ downloadBtn.addEventListener('click', () => {
         .split('\n')
         .map(line => line.trim())
         .filter(line => line && !line.startsWith('#'))
-        .map(url => cleanYouTubeUrl(url));  // 清理 URL，只保留视频 ID
+        .map(url => cleanUrl(url));  // 清理 URL
     
     if (urls.length === 0) {
         alert('请输入至少一个视频链接！');
@@ -98,18 +131,38 @@ downloadBtn.addEventListener('click', () => {
     // 清空之前的日志
     logOutput.innerHTML = '';
     
+    // 统计不同网站的视频数量
+    const websiteStats = {};
+    urls.forEach(url => {
+        const website = detectWebsite(url);
+        websiteStats[website] = (websiteStats[website] || 0) + 1;
+    });
+    
     addLog(`开始下载 ${urls.length} 个视频`, 'info');
     addLog(`保存位置: ${outputPath.value}`, 'info');
     addLog(`视频质量: ${quality.options[quality.selectedIndex].text}`, 'info');
     addLog(`文件名格式: ${useVideoId.checked ? '视频ID' : '视频标题'}`, 'info');
     addLog('='.repeat(50), 'info');
+    addLog('📊 网站统计:', 'info');
+    Object.entries(websiteStats).forEach(([website, count]) => {
+        addLog(`  ${website}: ${count} 个`, 'info');
+    });
+    addLog('='.repeat(50), 'info');
+    
+    // 收集平台特定配置
+    const platformSettings = {
+        pinterest: {
+            downloadThumbnail: pinterestThumbnail.checked
+        }
+    };
     
     // 发送下载请求
     ipcRenderer.send('download-video', {
         urls: urls,
         outputPath: outputPath.value,
         quality: quality.value,
-        useVideoId: useVideoId.checked
+        useVideoId: useVideoId.checked,
+        platformSettings: platformSettings
     });
 });
 
@@ -136,12 +189,14 @@ ipcRenderer.on('download-progress', (event, data) => {
     progressBar.style.width = percent + '%';
     progressBar.textContent = percent + '%';
     
-    progressText.textContent = `正在下载 ${data.current}/${data.total}: ${data.url}`;
+    // 显示网站类型
+    const websiteIcon = detectWebsite(data.url);
+    progressText.textContent = `[${websiteIcon}] 正在下载 ${data.current}/${data.total}: ${data.url}`;
     
     if (data.status === 'success') {
-        addLog(`✓ [${data.current}/${data.total}] 下载成功: ${data.url}`, 'success');
+        addLog(`✓ [${data.current}/${data.total}] ${websiteIcon} 下载成功: ${data.url}`, 'success');
     } else if (data.status === 'error') {
-        addLog(`✗ [${data.current}/${data.total}] 下载失败: ${data.url}`, 'error');
+        addLog(`✗ [${data.current}/${data.total}] ${websiteIcon} 下载失败: ${data.url}`, 'error');
         if (data.error) {
             addLog(`  错误信息: ${data.error}`, 'error');
         }

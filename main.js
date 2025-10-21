@@ -100,8 +100,167 @@ function getYtDlpPath() {
     return 'yt-dlp';
 }
 
+// 识别网站类型
+function detectWebsite(url) {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        return 'youtube';
+    } else if (url.includes('pinterest.com') || url.includes('pin.it')) {
+        return 'pinterest';
+    } else if (url.includes('instagram.com')) {
+        return 'instagram';
+    } else if (url.includes('twitter.com') || url.includes('x.com')) {
+        return 'twitter';
+    } else if (url.includes('tiktok.com')) {
+        return 'tiktok';
+    } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+        return 'facebook';
+    } else if (url.includes('vimeo.com')) {
+        return 'vimeo';
+    } else if (url.includes('bilibili.com')) {
+        return 'bilibili';
+    }
+    return 'generic';
+}
+
+// 根据清晰度获取格式字符串
+function getFormatByQuality(quality, useAudioMerge = true) {
+    let height;
+    switch(quality) {
+        case '4k':
+            height = 2160;
+            break;
+        case '1080p':
+            height = 1080;
+            break;
+        case '720p':
+            height = 720;
+            break;
+        case '480p':
+            height = 480;
+            break;
+        default:
+            // 最佳质量
+            if (useAudioMerge) {
+                return 'bestvideo+bestaudio/best';
+            } else {
+                return 'best';
+            }
+    }
+    
+    // 指定清晰度的格式
+    if (useAudioMerge) {
+        return `bestvideo[height<=${height}]+bestaudio/best[height<=${height}]/best`;
+    } else {
+        return `best[height<=${height}]/best`;
+    }
+}
+
+// 根据网站类型获取特定参数
+function getWebsiteSpecificArgs(website, quality, outputTemplate, platformSettings = {}) {
+    const baseArgs = [
+        '-o', outputTemplate,
+        '--retries', '10',
+        '--fragment-retries', '10',
+        '--socket-timeout', '30'
+    ];
+    
+    switch(website) {
+        case 'youtube':
+            // YouTube 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4',
+                '--no-playlist',
+                '--concurrent-fragments', '4',
+                '--buffer-size', '16K'
+            ];
+            
+        case 'pinterest':
+            // Pinterest 特定参数
+            // Pinterest 使用 HLS 流媒体，需要合并视频和音频
+            const pinterestArgs = [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4',
+                '--no-playlist',
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                '--referer', 'https://www.pinterest.com/',
+                '--embed-thumbnail',  // 总是嵌入封面到视频
+                '--add-metadata',
+                '--hls-prefer-ffmpeg'
+            ];
+            
+            // 根据用户配置决定是否下载独立的封面图片文件
+            if (platformSettings.pinterest && platformSettings.pinterest.downloadThumbnail) {
+                pinterestArgs.push('--write-thumbnail');
+            }
+            
+            return pinterestArgs;
+            
+        case 'instagram':
+            // Instagram 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4',
+                '--no-playlist',
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            ];
+            
+        case 'twitter':
+            // Twitter/X 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4'
+            ];
+            
+        case 'tiktok':
+            // TikTok 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4',
+                '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            ];
+            
+        case 'facebook':
+            // Facebook 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4'
+            ];
+            
+        case 'vimeo':
+            // Vimeo 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4'
+            ];
+            
+        case 'bilibili':
+            // Bilibili 特定参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4'
+            ];
+            
+        default:
+            // 通用参数
+            return [
+                ...baseArgs,
+                '--format', getFormatByQuality(quality, true),
+                '--merge-output-format', 'mp4'
+            ];
+    }
+}
+
 // 下载视频
-ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId }) => {
+ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId, platformSettings }) => {
     const ytdlpPath = getYtDlpPath();
     downloadNext(0);
     
@@ -117,55 +276,30 @@ ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId }) 
             return;
         }
         
+        // 识别网站类型
+        const website = detectWebsite(url);
+        
         event.reply('download-progress', {
             current: index + 1,
             total: urls.length,
             url: url,
+            website: website,
             status: 'downloading'
         });
-        
-        // 根据选择的清晰度设置格式
-        let formatString;
-        switch(quality) {
-            case '4k':
-                formatString = 'bestvideo[height<=2160][ext=mp4]+bestaudio[ext=m4a]/best[height<=2160]/best';
-                break;
-            case '1080p':
-                formatString = 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[height<=1080]/best';
-                break;
-            case '720p':
-                formatString = 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720]/best';
-                break;
-            case '480p':
-                formatString = 'bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/best[height<=480]/best';
-                break;
-            default:
-                formatString = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best';
-        }
         
         // 根据配置决定使用视频ID还是标题作为文件名
         const outputTemplate = useVideoId 
             ? path.join(outputPath, '%(id)s.%(ext)s')
             : path.join(outputPath, '%(title)s.%(ext)s');
         
-        const args = [
-            url,
-            '-o', outputTemplate,
-            '--format', formatString,
-            '--merge-output-format', 'mp4',
-            '--no-playlist',
-            // 速度优化参数
-            '--concurrent-fragments', '4',
-            '--buffer-size', '16K',
-            // 稳定性优化参数
-            '--retries', '10',
-            '--fragment-retries', '10',
-            '--socket-timeout', '30'
-        ];
+        // 根据网站类型获取特定参数
+        const args = [url, ...getWebsiteSpecificArgs(website, quality, outputTemplate, platformSettings)];
         
-        const ytdlp = spawn(ytdlpPath, args, {
-            shell: true
-        });
+        // 调试：输出命令
+        console.log('执行命令:', ytdlpPath);
+        console.log('参数:', args);
+        
+        const ytdlp = spawn(ytdlpPath, args);
         
         let outputData = '';
         
@@ -187,6 +321,7 @@ ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId }) 
                     current: index + 1,
                     total: urls.length,
                     url: url,
+                    website: website,
                     status: 'success'
                 });
             } else {
@@ -194,6 +329,7 @@ ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId }) 
                     current: index + 1,
                     total: urls.length,
                     url: url,
+                    website: website,
                     status: 'error',
                     error: `下载失败 (错误代码: ${code})`
                 });
@@ -206,6 +342,7 @@ ipcMain.on('download-video', (event, { urls, outputPath, quality, useVideoId }) 
                 current: index + 1,
                 total: urls.length,
                 url: url,
+                website: website,
                 status: 'error',
                 error: err.message
             });
