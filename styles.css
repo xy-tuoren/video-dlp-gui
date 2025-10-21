@@ -1,0 +1,302 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 15px;
+}
+
+header h1 {
+    font-size: 1.8em;
+    margin-bottom: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.main-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.card {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.card h2 {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #495057;
+}
+
+#urlInput {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+#urlInput:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.file-info {
+    color: #28a745;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.setting-row {
+    margin-bottom: 12px;
+}
+
+.setting-row:last-child {
+    margin-bottom: 0;
+}
+
+.setting-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #495057;
+}
+
+.path-selector {
+    display: flex;
+    gap: 10px;
+}
+
+.path-selector input {
+    flex: 1;
+    padding: 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+}
+
+.quality-select {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.quality-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.action-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: center;
+}
+
+.progress-section {
+    background: #e7f3ff;
+    border-color: #b3d9ff;
+}
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.progress-text {
+    font-weight: 500;
+    color: #0056b3;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 24px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.log-section {
+    background: #f8f9fa;
+}
+
+.log-output {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    line-height: 1.5;
+}
+
+.log-output::-webkit-scrollbar {
+    width: 10px;
+}
+
+.log-output::-webkit-scrollbar-track {
+    background: #2d2d2d;
+    border-radius: 5px;
+}
+
+.log-output::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 5px;
+}
+
+.log-output::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+.log-entry {
+    margin-bottom: 3px;
+    word-wrap: break-word;
+}
+
+.log-success {
+    color: #4caf50;
+}
+
+.log-error {
+    color: #f44336;
+}
+
+.log-info {
+    color: #2196f3;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+    
+    .action-section {
+        flex-direction: column;
+    }
+    
+    .path-selector {
+        flex-direction: column;
+    }
+}
+

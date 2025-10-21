@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube 视频下载工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📹 YouTube 视频下载工具</h1>
+            <p class="subtitle">支持批量下载，多种清晰度选择</p>
+        </header>
+
+        <div class="main-content">
+            <!-- URL输入区域 -->
+            <section class="card">
+                <h2>📝 视频链接</h2>
+                <div class="input-group">
+                    <label>输入 URL（每行一个）：</label>
+                    <textarea 
+                        id="urlInput" 
+                        placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/watch?v=...&#10;&#10;或点击下方按钮选择 URL 文件"
+                        rows="6"
+                    ></textarea>
+                </div>
+                <div class="button-group">
+                    <button id="selectFileBtn" class="btn btn-secondary">
+                        📁 选择 URL 文件
+                    </button>
+                    <span id="selectedFile" class="file-info"></span>
+                </div>
+            </section>
+
+            <!-- 设置区域 -->
+            <section class="card">
+                <h2>⚙️ 下载设置</h2>
+                
+                <div class="setting-row">
+                    <label for="outputPath">保存位置：</label>
+                    <div class="path-selector">
+                        <input 
+                            type="text" 
+                            id="outputPath" 
+                            placeholder="选择视频保存位置" 
+                            readonly
+                        >
+                        <button id="selectFolderBtn" class="btn btn-secondary">
+                            📂 选择文件夹
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-row">
+                    <label for="quality">视频清晰度：</label>
+                    <select id="quality" class="quality-select">
+                        <option value="best">最佳质量</option>
+                        <option value="4k">4K (2160p)</option>
+                        <option value="1080p">1080p (全高清)</option>
+                        <option value="720p">720p (高清)</option>
+                        <option value="480p">480p (标清)</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <label>
+                        <input type="checkbox" id="useVideoId" checked>
+                        使用视频ID作为文件名
+                    </label>
+                </div>
+            </section>
+
+            <!-- 操作按钮 -->
+            <div class="action-section">
+                <button id="downloadBtn" class="btn btn-primary">
+                    ⬇️ 开始下载
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">
+                    🗑️ 清空日志
+                </button>
+            </div>
+
+            <!-- 进度显示 -->
+            <section class="card progress-section" id="progressSection" style="display: none;">
+                <h2>📊 下载进度</h2>
+                <div class="progress-info">
+                    <div class="progress-text" id="progressText">准备下载...</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 日志区域 -->
+            <section class="card log-section">
+                <h2>📄 下载日志</h2>
+                <div id="logOutput" class="log-output"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
+
