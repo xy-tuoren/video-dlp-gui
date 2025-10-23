@@ -178,11 +178,13 @@ function getWebsiteSpecificArgs(
     "-o",
     outputTemplate,
     "--retries",
-    "10",
+    "5",
     "--fragment-retries",
-    "10",
+    "5",
     "--socket-timeout",
-    "30"
+    "20",
+    "--http-chunk-size",
+    "10M"
   ];
 
   switch (website) {
@@ -195,7 +197,14 @@ function getWebsiteSpecificArgs(
         getFormatByQuality(quality, true),
         "--merge-output-format",
         "mp4",
-        "--no-playlist"
+        "--no-playlist",
+        // 速度优化参数
+        "--concurrent-fragments",
+        "8",
+        "--buffer-size",
+        "32K",
+        "--no-part",
+        "--hls-prefer-native"
       ];
 
       // Cookie 文件优先级：
@@ -239,13 +248,15 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--no-playlist",
+        "--concurrent-fragments",
+        "6",
         "--user-agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "--referer",
         "https://www.pinterest.com/",
         "--embed-thumbnail", // 总是嵌入封面到视频
         "--add-metadata",
-        "--hls-prefer-ffmpeg"
+        "--hls-prefer-native"
       ];
 
       // 根据用户配置决定是否下载独立的封面图片文件
@@ -267,6 +278,8 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--no-playlist",
+        "--concurrent-fragments",
+        "4",
         "--user-agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       ];
@@ -278,7 +291,9 @@ function getWebsiteSpecificArgs(
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
-        "mp4"
+        "mp4",
+        "--concurrent-fragments",
+        "4"
       ];
 
     case "tiktok":
@@ -289,6 +304,8 @@ function getWebsiteSpecificArgs(
         getFormatByQuality(quality, true),
         "--merge-output-format",
         "mp4",
+        "--concurrent-fragments",
+        "4",
         "--user-agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       ];
@@ -300,7 +317,9 @@ function getWebsiteSpecificArgs(
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
-        "mp4"
+        "mp4",
+        "--concurrent-fragments",
+        "4"
       ];
 
     case "vimeo":
@@ -310,7 +329,9 @@ function getWebsiteSpecificArgs(
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
-        "mp4"
+        "mp4",
+        "--concurrent-fragments",
+        "4"
       ];
 
     case "bilibili":
@@ -320,7 +341,9 @@ function getWebsiteSpecificArgs(
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
-        "mp4"
+        "mp4",
+        "--concurrent-fragments",
+        "6"
       ];
 
     default:
@@ -330,7 +353,9 @@ function getWebsiteSpecificArgs(
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
-        "mp4"
+        "mp4",
+        "--concurrent-fragments",
+        "4"
       ];
   }
 }
