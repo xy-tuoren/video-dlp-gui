@@ -112,6 +112,26 @@ function getYtDlpPath() {
   return "yt-dlp";
 }
 
+// 检测 ffmpeg 可执行文件路径
+function getFfmpegPath() {
+  // 开发环境：直接在当前目录
+  let localPath = path.join(__dirname, "ffmpeg.exe");
+  if (fs.existsSync(localPath)) {
+    return localPath;
+  }
+
+  // 打包后环境：在 resources 目录
+  if (app.isPackaged) {
+    localPath = path.join(process.resourcesPath, "ffmpeg.exe");
+    if (fs.existsSync(localPath)) {
+      return localPath;
+    }
+  }
+
+  // 检查系统PATH中是否有ffmpeg
+  return null; // 如果没有找到本地ffmpeg，返回null让yt-dlp尝试使用系统的
+}
+
 // 识别网站类型
 function detectWebsite(url) {
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -182,9 +202,9 @@ function getWebsiteSpecificArgs(
     "--fragment-retries",
     "5",
     "--socket-timeout",
-    "20",
+    "30", // 增加超时时间
     "--http-chunk-size",
-    "10M"
+    "5M" // 减小分块大小，更稳定
   ];
 
   switch (website) {
@@ -242,14 +262,22 @@ function getWebsiteSpecificArgs(
       // Pinterest 特定参数
       // Pinterest 使用 HLS 流媒体，需要合并视频和音频
       const pinterestArgs = [
-        ...baseArgs,
+        "-o",
+        outputTemplate,
+        "--retries",
+        "5",
+        "--fragment-retries",
+        "10", // Pinterest 分片容易失败，增加重试
+        "--socket-timeout",
+        "30",
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
         "mp4",
         "--no-playlist",
         "--concurrent-fragments",
-        "6",
+        "1", // 单线程下载，避免 range 冲突
+        "--no-part", // 禁用分块下载
         "--user-agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "--referer",
@@ -365,6 +393,24 @@ ipcMain.on(
   "download-video",
   (event, { urls, outputPath, quality, useVideoId, platformSettings }) => {
     const ytdlpPath = getYtDlpPath();
+    const ffmpegPath = getFfmpegPath();
+
+    // 如果找到了本地ffmpeg，记录日志
+    if (ffmpegPath) {
+      console.log("检测到本地 ffmpeg:", ffmpegPath);
+      event.reply("download-output", `检测到本地 ffmpeg: ${ffmpegPath}\n`);
+    } else {
+      console.log("未检测到本地 ffmpeg，将尝试使用系统 PATH 中的 ffmpeg");
+      event.reply(
+        "download-output",
+        "⚠️ 未检测到本地 ffmpeg，将尝试使用系统 PATH 中的 ffmpeg\n"
+      );
+      event.reply(
+        "download-output",
+        "⚠️ 如果下载后出现分离的视频和音频文件，请安装 ffmpeg 或将 ffmpeg.exe 放到程序目录\n"
+      );
+    }
+
     downloadNext(0);
 
     function downloadNext(index) {
@@ -405,6 +451,11 @@ ipcMain.on(
           platformSettings
         )
       ];
+
+      // 如果找到了本地ffmpeg，添加ffmpeg路径参数
+      if (ffmpegPath) {
+        args.push("--ffmpeg-location", path.dirname(ffmpegPath));
+      }
 
       // 调试：输出命令
       console.log("执行命令:", ytdlpPath);

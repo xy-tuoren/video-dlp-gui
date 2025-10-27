@@ -1,5 +1,4 @@
 const { ipcRenderer } = require("electron");
-const path = require("path");
 
 // DOM 元素
 const urlInput = document.getElementById("urlInput");
