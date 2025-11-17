@@ -13,7 +13,7 @@ out/
 downloads/
 
 # 可执行文件
-yt-dlp.exe
+# yt-dlp.exe
 
 # 操作系统文件
 .DS_Store
@@ -55,4 +55,6 @@ logs/
 # Electron相关
 app/
 packages/
+
+cookies.txt
 
