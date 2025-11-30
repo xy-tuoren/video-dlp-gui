@@ -3,205 +3,145 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GG Bond多平台视频下载工具</title>
+    <title>媒体聚合器</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>📹 多平台视频下载工具</h1>
-        <p class="subtitle">
-          支持 YouTube、Pinterest、Instagram、TikTok、bilibili
-          等多个平台批量下载
-        </p>
-      </header>
+    <div class="app-shell">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">NΞ</div>
+          <div class="brand-text">
+            <div class="brand-name">霓虹盒子</div>
+            <div class="brand-sub">媒体聚合器 · 任务面板</div>
+          </div>
+        </div>
+      </div>
 
-      <div class="main-content">
-        <!-- URL输入区域 -->
-        <section class="card">
-          <h2>📝 视频链接</h2>
-          <div class="input-group">
-            <label>输入 URL（每行一个，支持多个平台）：</label>
+      <div class="content-grid">
+        <div class="left-col">
+          <section class="panel">
+            <div class="panel-title">来源清单</div>
+            <label class="field-label">在此粘贴链接（每行一个）：</label>
             <textarea
               id="urlInput"
-              placeholder="支持的平台示例：&#10;https://www.youtube.com/watch?v=...&#10;https://www.pinterest.com/pin/...&#10;https://www.instagram.com/p/...&#10;https://www.tiktok.com/@user/video/...&#10;https://twitter.com/user/status/...&#10;&#10;或点击下方按钮选择 URL 文件"
-              rows="8"
+              class="field-control"
+              rows="10"
+              placeholder="示例：&#10;https://www.youtube.com/watch?v=...&#10;https://www.pinterest.com/pin/...&#10;https://www.instagram.com/p/...&#10;https://www.tiktok.com/@user/video/...&#10;https://twitter.com/user/status/..."
             ></textarea>
-          </div>
-          <div class="button-group">
-            <button id="selectFileBtn" class="btn btn-secondary">
-              📁 选择 URL 文件
-            </button>
-            <span id="selectedFile" class="file-info"></span>
-          </div>
-        </section>
-
-        <!-- 设置区域 -->
-        <section class="card">
-          <h2>⚙️ 下载设置</h2>
-
-          <div class="setting-row">
-            <label for="outputPath">保存位置：</label>
-            <div class="path-selector">
-              <input
-                type="text"
-                id="outputPath"
-                placeholder="选择视频保存位置"
-                readonly
-              />
-              <button id="selectFolderBtn" class="btn btn-secondary">
-                📂 选择文件夹
+            <div class="inline-actions">
+              <button id="selectFileBtn" class="btn btn-ghost">
+                从文件加载
               </button>
+              <span id="selectedFile" class="file-info"></span>
             </div>
-          </div>
+          </section>
 
-          <div class="setting-row">
-            <label for="quality">视频清晰度：</label>
-            <select id="quality" class="quality-select">
-              <option value="best">最佳质量（推荐）</option>
-              <option value="4k">4K (2160p)</option>
-              <option value="1080p">1080p (全高清)</option>
-              <option value="720p">720p (高清)</option>
-              <option value="480p">480p (标清)</option>
-            </select>
-            <small style="color: #666; display: block; margin-top: 4px">
-              适用于所有平台，如果视频不支持所选清晰度，将自动下载最接近的质量
-            </small>
-          </div>
+          <section class="panel">
+            <div class="panel-title">存储与策略</div>
+            <div class="form-row">
+              <label class="field-label" for="outputPath">存储目录</label>
+              <div class="picker">
+                <input
+                  type="text"
+                  id="outputPath"
+                  class="field-control"
+                  placeholder="选择保存位置"
+                  readonly
+                />
+                <button id="selectFolderBtn" class="btn btn-ghost">选择</button>
+              </div>
+            </div>
 
-          <div class="setting-row">
-            <label>
-              <input type="checkbox" id="useVideoId" checked />
-              使用视频ID作为文件名
-            </label>
-          </div>
-        </section>
+            <div class="form-row">
+              <label class="field-label" for="quality">清晰度预设</label>
+              <select id="quality" class="field-control">
+                <option value="best">最佳质量（推荐）</option>
+                <option value="4k">4K (2160p)</option>
+                <option value="1080p">1080p (全高清)</option>
+                <option value="720p">720p (高清)</option>
+                <option value="480p">480p (标清)</option>
+              </select>
+            </div>
 
-        <!-- 平台特定设置 -->
-        <section class="card">
-          <h2>🔧 平台特定设置</h2>
+            <div class="form-row form-inline">
+              <label class="checkbox">
+                <input type="checkbox" id="useVideoId" checked />
+                使用视频ID作为文件名
+              </label>
+            </div>
+          </section>
 
-          <details>
-            <summary
-              style="
-                cursor: pointer;
-                padding: 8px;
-                background: #f5f5f5;
-                border-radius: 4px;
-                margin-bottom: 8px;
-              "
-            >
-              <strong>🎬 YouTube</strong>
-            </summary>
-            <div style="padding: 12px 20px">
-              <div style="margin-bottom: 12px">
-                <label
-                  style="display: block; margin-bottom: 8px; font-weight: 500"
-                >
-                  Cookie 文件路径：
-                </label>
-                <div class="path-selector">
+          <section class="panel">
+            <div class="panel-title">平台插件</div>
+
+            <details class="accordion">
+              <summary>🎬 YouTube</summary>
+              <div class="details-body">
+                <label class="field-label">Cookie 文件</label>
+                <div class="picker">
                   <input
                     type="text"
                     id="youtube-cookie-path"
-                    placeholder="选择 cookies.txt 文件（可选）"
+                    class="field-control"
+                    placeholder="选择 cookies.txt（可选）"
                     readonly
-                    style="flex: 1"
                   />
-                  <button id="selectYoutubeCookieBtn" class="btn btn-secondary">
-                    📄 选择文件
+                  <button id="selectYoutubeCookieBtn" class="btn btn-ghost">
+                    选择
                   </button>
                   <button
                     id="clearYoutubeCookieBtn"
-                    class="btn btn-secondary"
-                    style="padding: 8px 12px"
+                    class="btn btn-ghost danger"
+                    title="清除"
                   >
-                    ✖
+                    清除
                   </button>
                 </div>
-                <div
-                  style="
-                    color: #666;
-                    font-size: 0.9em;
-                    margin-top: 8px;
-                    line-height: 1.6;
-                  "
-                >
-                  <strong>💡 提示：</strong>
-                  <ul style="margin: 8px 0; padding-left: 20px">
-                    <li>
-                      使用 Cookie 可以绕过 YouTube 的反爬虫限制，下载更高画质
-                    </li>
-                    <li>如果不设置，将自动查找项目目录下的 cookies.txt 文件</li>
-                    <li>
-                      导出 Cookie 方法：安装 Chrome 扩展 "Get cookies.txt
-                      LOCALLY"，在 YouTube 登录后导出
-                    </li>
-                  </ul>
+                <div class="hint">
+                  使用 Cookie
+                  可提升可访问性与画质；未设置时将自动查找程序目录下的
+                  cookies.txt。
                 </div>
               </div>
-            </div>
-          </details>
+            </details>
 
-          <details>
-            <summary
-              style="
-                cursor: pointer;
-                padding: 8px;
-                background: #f5f5f5;
-                border-radius: 4px;
-                margin-bottom: 8px;
-              "
-            >
-              <strong>📌 Pinterest</strong>
-            </summary>
-            <div style="padding: 12px 20px">
-              <div style="margin-bottom: 8px">
-                <label>
+            <details class="accordion">
+              <summary>📌 Pinterest</summary>
+              <div class="details-body">
+                <label class="checkbox">
                   <input type="checkbox" id="pinterest-thumbnail" />
-                  下载独立的封面图片文件
+                  额外保存封面图片
                 </label>
-                <div
-                  style="
-                    color: #666;
-                    font-size: 0.9em;
-                    margin-left: 24px;
-                    margin-top: 4px;
-                  "
-                >
-                  封面会自动嵌入视频，此选项控制是否额外保存 .jpg 文件
+                <div class="hint">
+                  封面会嵌入到视频中；此开关控制是否另存 .jpg 文件。
                 </div>
               </div>
-            </div>
-          </details>
-        </section>
+            </details>
+          </section>
 
-        <!-- 操作按钮 -->
-        <div class="action-section">
-          <button id="downloadBtn" class="btn btn-primary">⬇️ 开始下载</button>
-          <button id="clearBtn" class="btn btn-secondary">🗑️ 清空日志</button>
+          <div class="panel actions">
+            <button id="downloadBtn" class="btn btn-primary">开始任务</button>
+            <button id="clearBtn" class="btn btn-ghost">清空事件流</button>
+          </div>
         </div>
 
-        <!-- 进度显示 -->
-        <section
-          class="card progress-section"
-          id="progressSection"
-          style="display: none"
-        >
-          <h2>📊 下载进度</h2>
-          <div class="progress-info">
-            <div class="progress-text" id="progressText">准备下载...</div>
-            <div class="progress-bar-container">
-              <div class="progress-bar" id="progressBar"></div>
+        <div class="right-col">
+          <section class="panel" id="progressSection" style="display: none">
+            <div class="panel-title">任务状态</div>
+            <div class="progress">
+              <div class="progress-head" id="progressText">准备中...</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- 日志区域 -->
-        <section class="card log-section">
-          <h2>📄 下载日志</h2>
-          <div id="logOutput" class="log-output"></div>
-        </section>
+          <section class="panel">
+            <div class="panel-title">事件流</div>
+            <div id="logOutput" class="log-output"></div>
+          </section>
+        </div>
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 {
-  "name": "video-dlp-gui",
+  "name": "neonbox-media",
   "version": "2.0.0",
   "main": "main.js",
   "scripts": {
@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
-    "appId": "com.ytdlp.gui",
-    "productName": "Multi-Platform Video Downloader",
+    "appId": "cn.neonbox.app",
+    "productName": "霓虹盒子",
     "icon": "assets/icon.png",
     "win": {
       "target": [
@@ -33,7 +33,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Multi-Platform Video Downloader"
+      "shortcutName": "霓虹盒子"
     },
     "files": [
       "main.js",
@@ -55,17 +55,14 @@
     ]
   },
   "keywords": [
-    "video",
-    "downloader",
-    "youtube",
-    "pinterest",
-    "instagram",
-    "tiktok",
-    "yt-dlp"
+    "media",
+    "aggregator",
+    "neonbox",
+    "utility"
   ],
   "author": "",
   "license": "ISC",
-  "description": "多平台视频下载工具 - 支持 YouTube、Pinterest、Instagram、TikTok 等多个平台",
+  "description": "霓虹盒子：媒体聚合器与任务面板（多源整合，统一处理）",
   "devDependencies": {
     "electron": "^28.3.3",
     "electron-builder": "^24.13.3"

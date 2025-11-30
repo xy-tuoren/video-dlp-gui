@@ -16,7 +16,8 @@ function createWindow() {
       contextIsolation: false
     },
     resizable: true,
-    icon: path.join(__dirname, "assets", "icon.png")
+    icon: path.join(__dirname, "assets", "icon.png"),
+    title: "霓虹盒子"
   });
 
   mainWindow.loadFile("index.html");
