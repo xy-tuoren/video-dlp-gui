@@ -10,7 +10,6 @@
   "build": {
     "appId": "cn.neonbox.app",
     "productName": "霓虹盒子",
-    "icon": "assets/icon.png",
     "win": {
       "target": [
         {
