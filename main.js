@@ -205,7 +205,10 @@ function getWebsiteSpecificArgs(
     "--socket-timeout",
     "30", // 增加超时时间
     "--http-chunk-size",
-    "5M" // 减小分块大小，更稳定
+    "5M", // 减小分块大小，更稳定
+    // 添加通用User-Agent，避免403错误
+    "--user-agent",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
   ];
 
   switch (website) {
@@ -225,7 +228,10 @@ function getWebsiteSpecificArgs(
         "--buffer-size",
         "32K",
         "--no-part",
-        "--hls-prefer-native"
+        "--hls-prefer-native",
+        // 添加Referer，避免403错误
+        "--referer",
+        "https://www.youtube.com/"
       ];
 
       // Cookie 文件优先级：
@@ -263,14 +269,9 @@ function getWebsiteSpecificArgs(
       // Pinterest 特定参数
       // Pinterest 使用 HLS 流媒体，需要合并视频和音频
       const pinterestArgs = [
-        "-o",
-        outputTemplate,
-        "--retries",
-        "5",
+        ...baseArgs,
         "--fragment-retries",
-        "10", // Pinterest 分片容易失败，增加重试
-        "--socket-timeout",
-        "30",
+        "10", // Pinterest 分片容易失败，增加重试（覆盖baseArgs中的5）
         "--format",
         getFormatByQuality(quality, true),
         "--merge-output-format",
@@ -279,8 +280,6 @@ function getWebsiteSpecificArgs(
         "--concurrent-fragments",
         "1", // 单线程下载，避免 range 冲突
         "--no-part", // 禁用分块下载
-        "--user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "--referer",
         "https://www.pinterest.com/",
         "--embed-thumbnail", // 总是嵌入封面到视频
@@ -308,9 +307,7 @@ function getWebsiteSpecificArgs(
         "mp4",
         "--no-playlist",
         "--concurrent-fragments",
-        "4",
-        "--user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "4"
       ];
 
     case "twitter":
@@ -322,7 +319,9 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--concurrent-fragments",
-        "4"
+        "4",
+        "--referer",
+        "https://twitter.com/"
       ];
 
     case "tiktok":
@@ -334,9 +333,7 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--concurrent-fragments",
-        "4",
-        "--user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "4"
       ];
 
     case "facebook":
@@ -348,7 +345,9 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--concurrent-fragments",
-        "4"
+        "4",
+        "--referer",
+        "https://www.facebook.com/"
       ];
 
     case "vimeo":
@@ -360,7 +359,9 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--concurrent-fragments",
-        "4"
+        "4",
+        "--referer",
+        "https://vimeo.com/"
       ];
 
     case "bilibili":
@@ -372,7 +373,9 @@ function getWebsiteSpecificArgs(
         "--merge-output-format",
         "mp4",
         "--concurrent-fragments",
-        "6"
+        "6",
+        "--referer",
+        "https://www.bilibili.com/"
       ];
 
     default:
@@ -488,13 +491,32 @@ ipcMain.on(
             status: "success"
           });
         } else {
+          // 检查是否是403错误
+          let errorMessage = `下载失败 (错误代码: ${code})`;
+          if (outputData.includes("403") || outputData.includes("Forbidden")) {
+            errorMessage = "HTTP 403 禁止访问";
+            // 根据网站类型提供不同的建议
+            if (website === "youtube") {
+              event.reply("download-output", "\n⚠️ YouTube 403错误解决方案：\n");
+              event.reply("download-output", "1. 请配置Cookie文件（在设置中选择或使用项目目录下的cookies.txt）\n");
+              event.reply("download-output", "2. 确保yt-dlp是最新版本（某些视频需要最新版本才能下载）\n");
+              event.reply("download-output", "3. 某些视频可能需要登录账号才能下载\n");
+            } else {
+              event.reply("download-output", "\n⚠️ 403错误可能的原因：\n");
+              event.reply("download-output", "1. 网站检测到自动化请求，请稍后重试\n");
+              event.reply("download-output", "2. 视频需要登录或特殊权限\n");
+              event.reply("download-output", "3. IP地址可能被限制，请更换网络或使用代理\n");
+              event.reply("download-output", "4. 确保yt-dlp是最新版本\n");
+            }
+          }
+          
           event.reply("download-progress", {
             current: index + 1,
             total: urls.length,
             url: url,
             website: website,
             status: "error",
-            error: `下载失败 (错误代码: ${code})`
+            error: errorMessage
           });
         }
         downloadNext(index + 1);
