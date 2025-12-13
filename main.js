@@ -198,7 +198,7 @@ function getWebsiteSpecificArgs(
     "-o",
     outputTemplate, 
     "--retries",
-    "5",
+    "10",
     "--fragment-retries",
     "5",
     "--socket-timeout",
@@ -538,3 +538,41 @@ ipcMain.on(
     }
   }
 );
+
+// 更新 yt-dlp 到最新版本
+ipcMain.on("update-yt-dlp", (event) => {
+  try {
+    const ytdlpPath = getYtDlpPath();
+
+    event.reply("update-output", `执行更新命令: "${ytdlpPath}" -U\n`);
+
+    const updater = spawn(ytdlpPath, ["-U"]);
+
+    updater.stdout.on("data", (data) => {
+      const output = iconv.decode(data, "cp936");
+      event.reply("update-output", output);
+    });
+
+    updater.stderr.on("data", (data) => {
+      const output = iconv.decode(data, "cp936");
+      event.reply("update-output", output);
+    });
+
+    updater.on("close", (code) => {
+      if (code === 0) {
+        event.reply("update-complete", { success: true });
+      } else {
+        event.reply("update-complete", {
+          success: false,
+          error: `更新命令退出码: ${code}`
+        });
+      }
+    });
+
+    updater.on("error", (err) => {
+      event.reply("update-complete", { success: false, error: err.message });
+    });
+  } catch (err) {
+    event.reply("update-complete", { success: false, error: err.message });
+  }
+});

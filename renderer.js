@@ -9,6 +9,7 @@ const selectFolderBtn = document.getElementById("selectFolderBtn");
 const quality = document.getElementById("quality");
 const useVideoId = document.getElementById("useVideoId");
 const downloadBtn = document.getElementById("downloadBtn");
+const updateYtDlpBtn = document.getElementById("updateYtDlpBtn");
 const clearBtn = document.getElementById("clearBtn");
 const progressSection = document.getElementById("progressSection");
 const progressText = document.getElementById("progressText");
@@ -198,6 +199,14 @@ clearBtn.addEventListener("click", () => {
   logOutput.innerHTML = "";
 });
 
+// 更新 yt-dlp
+updateYtDlpBtn.addEventListener("click", () => {
+  updateYtDlpBtn.disabled = true;
+  updateYtDlpBtn.textContent = "🔄 更新中...";
+  addLog("开始更新 yt-dlp 到最新版本...", "info");
+  ipcRenderer.send("update-yt-dlp");
+});
+
 // 接收下载进度
 ipcRenderer.on("download-progress", (event, data) => {
   // 如果不是最后一个视频，进度最多到99%
@@ -264,6 +273,22 @@ ipcRenderer.on("download-complete", (event, data) => {
   } else {
     addLog("=".repeat(50), "info");
     addLog(`✗ 下载过程中出现错误: ${data.error}`, "error");
+  }
+});
+
+// 接收 yt-dlp 更新输出
+ipcRenderer.on("update-output", (event, output) => {
+  addLog(output.trim());
+});
+
+// 接收 yt-dlp 更新完成
+ipcRenderer.on("update-complete", (event, data) => {
+  updateYtDlpBtn.disabled = false;
+  updateYtDlpBtn.textContent = "🔄 更新 yt-dlp";
+  if (data && data.success) {
+    addLog("✓ yt-dlp 更新完成", "success");
+  } else {
+    addLog(`✗ yt-dlp 更新失败: ${data && data.error ? data.error : "未知错误"}`, "error");
   }
 });
 
